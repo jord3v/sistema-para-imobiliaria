@@ -12,6 +12,13 @@
       <link rel="stylesheet" href="{{ asset('css/app.css') }}">
       <!-- Scripts -->
       <script src="{{ asset('js/app.js') }}" defer></script>
+      <script src="https://kit.fontawesome.com/f06f76d671.js" crossorigin="anonymous"></script>
+      <style>
+         .list-group-item.active {
+            background-color: inherit;
+            border-left: 2px solid #206bc4!important;
+         }
+      </style>
    </head>
    <body>
       <div class="page">
@@ -25,7 +32,7 @@
                      <div class="col">
                         <!-- Page pre-title -->
                         <div class="page-pretitle">
-                           Overview
+                            
                         </div>
                         <h2 class="page-title">
                            {{ $header }}
@@ -57,6 +64,20 @@
                               </svg>
                            </a>
                         </div>
+                     </div>
+                  </div>
+                  <div class="row mt-3">
+                     <div class="col-auto me-auto"></div>
+                     <div class="col-auto">
+                        <ol class="breadcrumb breadcrumb-arrows" aria-label="breadcrumbs">
+                           @php $segments = ''; @endphp
+                           @foreach(request()->segments() as $segment)
+                              <?php $segments .= '/'.$segment; ?>
+                              <li class="breadcrumb-item {{$loop->last ? 'active':''}}">
+                                 <a href="{{ $segments }}">{{$loop->last ? strip_tags($header) : $segment}}</a>
+                              </li>
+                           @endforeach
+                        </ol>
                      </div>
                   </div>
                </div>
@@ -106,4 +127,7 @@
          </main>
       </div>
    </body>
+   <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+   <script src="{{ asset('js/functions.js') }}" defer></script>
+   @stack('scripts')
 </html>

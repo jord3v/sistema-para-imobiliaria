@@ -1,5 +1,11 @@
 <?php
 
+use App\Http\Controllers\{
+    PropertyController,
+    CustomerController,
+    ContractController
+};
+
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -17,8 +23,17 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware(['auth'])->name('dashboard');
+Route::group(['prefix' => 'dashboard', 'middleware' => 'auth'], function(){
+    Route::get('/', function () {
+        return view('dashboard.index');
+    })->name('dashboard');
+    Route::resources([
+        'properties' => PropertyController::class,
+        'customers' => CustomerController::class,
+        'contracts' => ContractController::class,
+    ]);
+    Route::post('contracts/preview', [ContractController::class, 'preview'])->name('contracts.preview');
+    Route::post('properties/categories', [PropertyController::class, 'categories'])->name('properties.categories');
+});
 
 require __DIR__.'/auth.php';

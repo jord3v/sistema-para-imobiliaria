@@ -16,6 +16,7 @@
         "postcss": "^8.1.14"
     },
     "dependencies": {
-        "@tabler/core": "^1.0.0-beta9"
+        "@tabler/core": "^1.0.0-beta9",
+        "jquery": "^3.6.0"
     }
 }

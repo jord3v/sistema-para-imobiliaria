@@ -9,7 +9,7 @@
        <x-auth-session-status class="mb-4" :status="session('status')" />
        <!-- Validation Errors -->
        <x-auth-validation-errors class="mb-4" :errors="$errors" />
-       <form class="card card-md" action="{{ route('login') }}" method="post" autocomplete="off">
+       <form class="card card-md" action="{{ route('login') }}" method="post">
           @csrf
           <div class="card-body">
             <h2 class="card-title text-center mb-4">Login to your account</h2>
