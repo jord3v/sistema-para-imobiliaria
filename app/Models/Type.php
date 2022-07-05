@@ -2,19 +2,21 @@
 
 namespace App\Models;
 
-use Spatie\Sluggable\HasSlug;
-use Spatie\Sluggable\SlugOptions;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Str;
 
 class Type extends Model
 {
-    use HasSlug;
-
-    public function getSlugOptions() : SlugOptions
-    {
-        return SlugOptions::create()
-            ->generateSlugsFrom('name')
-            ->saveSlugsTo('slug');
+    public static function boot() {
+        parent::boot();
+        /**
+         * Write code on Method
+         *
+         * @return response()
+         */
+        static::creating(function($model) {            
+            $model->slug = Str::slug($model->name, '-');
+        });
     }
 
     public function purpose()

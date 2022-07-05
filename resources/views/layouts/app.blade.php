@@ -10,17 +10,14 @@
       <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap">
       <!-- Styles -->
       <link rel="stylesheet" href="{{ asset('css/app.css') }}">
+      <link rel="stylesheet" href="{{ asset('css/custom.css') }}">
       <!-- Scripts -->
       <script src="{{ asset('js/app.js') }}" defer></script>
       <script src="https://kit.fontawesome.com/f06f76d671.js" crossorigin="anonymous"></script>
-      <style>
-         .list-group-item.active {
-            background-color: inherit;
-            border-left: 2px solid #206bc4!important;
-         }
-      </style>
+      <link rel="stylesheet" href="https://unpkg.com/dropzone@5/dist/min/dropzone.min.css" type="text/css" />
    </head>
    <body>
+      @include('sweetalert::alert')
       <div class="page">
          @include('layouts.aside')
          @include('layouts.header')
@@ -32,39 +29,45 @@
                      <div class="col">
                         <!-- Page pre-title -->
                         <div class="page-pretitle">
-                            
                         </div>
                         <h2 class="page-title">
                            {{ $header }}
                         </h2>
                      </div>
                      <!-- Page title actions -->
+                     @foreach (request()->segments() as $segment)
                      <div class="col-12 col-md-auto ms-auto d-print-none">
                         <div class="btn-list">
+                           @if ($loop->first)
+                           @elseif(count(request()->segments()) == 2)
                            <span class="d-none d-sm-inline">
-                           <a href="#" class="btn btn-white">
-                           New view
-                           </a>
+                           <a href="./" class="btn btn-white"> Voltar</a>
                            </span>
-                           <a href="#" class="btn btn-primary d-none d-sm-inline-block" data-bs-toggle="modal" data-bs-target="#modal-report">
+                           <a href="{{route($segment.'.create')}}" class="btn btn-primary d-none d-sm-inline-block">
                               <!-- Download SVG icon from http://tabler-icons.io/i/plus -->
                               <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                                  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
                                  <line x1="12" y1="5" x2="12" y2="19" />
                                  <line x1="5" y1="12" x2="19" y2="12" />
                               </svg>
-                              Create new report
+                              Novo
                            </a>
-                           <a href="#" class="btn btn-primary d-sm-none btn-icon" data-bs-toggle="modal" data-bs-target="#modal-report" aria-label="Create new report">
-                              <!-- Download SVG icon from http://tabler-icons.io/i/plus -->
+                           <a href="{{route($segment.'.create')}}" class="btn btn-primary d-sm-none btn-icon" aria-label="Novo">
                               <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                                  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
                                  <line x1="12" y1="5" x2="12" y2="19" />
                                  <line x1="5" y1="12" x2="19" y2="12" />
                               </svg>
                            </a>
+                           @elseif($segment == 'create')
+                           <span class="d-none d-sm-inline">
+                           <a href="./" class="btn btn-white"> Voltar</a>
+                           </span>
+                           @else
+                           @endif
                         </div>
                      </div>
+                     @endforeach
                   </div>
                   <div class="row mt-3">
                      <div class="col-auto me-auto"></div>
@@ -72,10 +75,12 @@
                         <ol class="breadcrumb breadcrumb-arrows" aria-label="breadcrumbs">
                            @php $segments = ''; @endphp
                            @foreach(request()->segments() as $segment)
-                              <?php $segments .= '/'.$segment; ?>
-                              <li class="breadcrumb-item {{$loop->last ? 'active':''}}">
-                                 <a href="{{ $segments }}">{{$loop->last ? strip_tags($header) : $segment}}</a>
-                              </li>
+                           <?php $segments .= '/'.$segment; ?>
+                           @if(!is_numeric($segment))
+                           <li class="breadcrumb-item {{$loop->last ? 'active':''}}">
+                              <a href="{{ $segments }}">{{$loop->last ? strip_tags($header) : trans('system.'.$segment)}}</a>
+                           </li>
+                           @endif
                            @endforeach
                         </ol>
                      </div>
@@ -128,6 +133,10 @@
       </div>
    </body>
    <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+   <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js" integrity="sha512-uto9mlQzrs59VwILcLiRYeLKPPbS/bT71da/OEBYEwcdNUk8jYIy+D176RYoop1Da+f9mvkYrmj5MCLZWEtQuA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.4.17/dist/sweetalert2.all.min.js" integrity="sha256-RhRrbx+dLJ7yhikmlbEyQjEaFMSutv6AzLv3m6mQ6PQ=" crossorigin="anonymous"></script>
+   <script src="https://unpkg.com/dropzone@5/dist/min/dropzone.min.js"></script>
+   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.min.js" integrity="sha512-pHVGpX7F/27yZ0ISY+VVjyULApbDlD0/X0rgGbTqCE7WFW5MezNTWG/dnhtbBuICzsd0WQPgpE4REBLv+UqChw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
    <script src="{{ asset('js/functions.js') }}" defer></script>
    @stack('scripts')
 </html>

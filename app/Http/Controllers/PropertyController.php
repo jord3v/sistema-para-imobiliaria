@@ -37,10 +37,35 @@ class PropertyController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        $properties = $this->property->with(['type', 'purpose', 'user'])->paginate(10);
-        return view('dashboard.properties.index', compact('properties'));
+        $properties = $this->property->filter($request->all())->paginateFilter();
+        $filters = $this->property::with(['type', 'purpose', 'user'])->filter($request->all())->get(); 
+        
+        if (count($filters) == 0)
+        return view('dashboard.properties.no-results');
+
+        foreach ($filters->unique('purpose_id')->sortBy('purpose_id') as $property){
+            $purposes[] = $property->purpose;
+        }
+    
+        foreach ($filters->unique('location.city')->sortBy('location.city') as $property){
+            $cities[] = $property->location;
+        }
+    
+        foreach ($filters->unique('location.neighborhood')->sortBy('location.neighborhood') as $property){
+            $neighborhoods[] = $property->location;
+        }
+    
+        foreach ($filters->unique('bedroom')->sortBy('bedroom') as $property){
+            $bedrooms[] = $property->bedroom;
+        }
+    
+        foreach ($filters->unique('bathroom')->sortBy('bathroom') as $property){
+            $bathrooms[] = $property->bathroom;
+        }
+        
+        return view('dashboard.properties.index', compact('properties', 'purposes', 'cities', 'neighborhoods', 'bedrooms', 'bathrooms'));
     }
 
     /**
@@ -63,7 +88,7 @@ class PropertyController extends Controller
     {
         $property = auth()->user()->properties()->create($request->all());   
         $property->location()->create($request->all());
-        return redirect()->back();
+        return redirect('dashboard/properties/'.$property->id.'/edit#list-details');
     }
 
     /**
@@ -101,7 +126,7 @@ class PropertyController extends Controller
         $property = $this->property->findOrFail($id);
         $property->update($request->all());
         $property->location->update($request->all());
-        return redirect()->back();
+        return redirect()->back()->with('toast_success', 'Atualizado com sucesso');
     }
 
     /**
@@ -112,7 +137,9 @@ class PropertyController extends Controller
      */
     public function destroy($id)
     {
-        //
+        $property = $this->property->find($id);
+        $property->delete();
+        return redirect()->route('properties.index')->with('toast_success', 'Imóvel excluido.');
     }
 
 
@@ -127,4 +154,5 @@ class PropertyController extends Controller
         $types = $this->purpose->with('types')->get();
         return response()->json(['types' => $types]);
     }
+
 }

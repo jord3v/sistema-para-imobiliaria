@@ -1,10 +1,23 @@
+const Toast = Swal.mixin({
+    toast: true,
+    position: 'top-end',
+    showConfirmButton: false,
+    timer: 3000,
+    timerProgressBar: true,
+    didOpen: (toast) => {
+        toast.addEventListener('mouseenter', Swal.stopTimer)
+        toast.addEventListener('mouseleave', Swal.resumeTimer)
+    }
+})
+
 $(document).ready(function() {
     // page contracts 
+
     $("#preview").click(function(e) {
         e.preventDefault();
         $.ajax({
             type: "POST",
-            url: "preview",
+            url: '/dashboard/contracts/preview',
             data: {
                 start_period: $("input[name='start_period']").val(),
                 payment: $("select[name='payment']").val(),
@@ -15,22 +28,55 @@ $(document).ready(function() {
                 _token: $('meta[name="csrf-token"]').attr('content'),
             },
             success: function(result) {
+                Toast.fire({
+                    icon: 'info',
+                    title: 'Simulação gerada'
+                });
                 var rows = $.map(result['dates'], function(value, index) {
                     return '<tr><td><small>' + value['id'] + 'ª mensalidade </small><br><input type="date" class="form-control form-control-flush" name="payments[' + value['id'] + '][date]" value="' + value['date'] + '" readonly></td><td><input type="number" class="form-control form-control-flush" name="payments[' + value['id'] + '][receipt]" value="' + value['receipt'] + '" readonly></td><td><input type="number" class="form-control form-control-flush" name="payments[' + value['id'] + '][transfer]" value="' + value['transfer'] + '" readonly></td><td><span class="status status-yellow"><span class="status-dot"></span>Em simulação</span></td></tr>';
                 });
                 $('table tbody').html(rows.join(''));
             },
             error: function(result) {
-                alert('error');
+                Toast.fire({
+                    icon: 'error',
+                    title: 'Verifique os campos'
+                })
             }
         });
     });
     // page properties
+    $('#template-wrapper').sortable();
+    $("#template-wrapper").sortable({
+        update: function(event, ui) {
+            var array = [];
+            $.each($('.template'), function(index, element) {
+                array.push($(element).data('order'))
+            });
+
+            console.log(array);
+
+            $.ajax({
+                url: '/dashboard/medias/sort',
+                method: 'post',
+                data: {
+                    _token: $('meta[name="csrf-token"]').attr('content'),
+                    'array': array
+                },
+                success: function(response) {
+                    Toast.fire({
+                        icon: 'info',
+                        title: 'Ordenado com sucesso'
+                    });
+                }
+            });
+        }
+    });
     if ($("select[name=purpose_id]").length > 0) {
         var location = $(location).attr('host');
         $.ajax({
             type: "post",
-            url: "http://localhost:8000/dashboard/properties/categories",
+            url: "/dashboard/properties/categories",
             data: {
                 _token: $('meta[name="csrf-token"]').attr('content'),
             },
@@ -54,6 +100,24 @@ $(document).ready(function() {
             }
         });
     };
+
+    //plugin mask jquery
+    
+    $('input[name=zipcode]').mask("00000-000", {placeholder: "_____-___"});
+    $('.money').mask('000.000.000.000.000,00', {reverse: true});
+    $('.percent').mask('##0,00%', {reverse: true});
+    $('.clear-if-not-match').mask("00/00/0000", {clearIfNotMatch: true});
+    $('.placeholder').mask("00/00/0000", {placeholder: "__/__/____"});
+    $('.fallback').mask("00r00r0000", {
+        translation: {
+            'r': {
+            pattern: /[\/]/,
+            fallback: '/'
+            },
+            placeholder: "__/__/____"
+        }
+        });
+    $('.selectonfocus').mask("00/00/0000", {selectOnFocus: true});
     //viacep plugin
 
     //Quando o campo cep perde o foco.
@@ -74,6 +138,10 @@ $(document).ready(function() {
                         $("input[name=neighborhood]").val(dados.bairro);
                         $("input[name=city]").val(dados.localidade);
                         $("input[name=state]").val(dados.uf);
+                        Toast.fire({
+                            icon: 'info',
+                            title: 'Endereço localizado'
+                        });
                     } else {
                         clearForm();
                         Toast.fire({
@@ -129,19 +197,19 @@ $(document).ready(function() {
                         event.stopPropagation()
                     }
 
-                    $('.tab-pane').each(function(index, obj){
-                        var pane = '#'+ $(this).attr('id');
-                        var n = $(pane+' .form-control:invalid').length;
-                        if(n > 0){
+                    $('.tab-pane').each(function(index, obj) {
+                        var pane = '#' + $(this).attr('id');
+                        var n = $(pane + ' .form-control:invalid').length;
+                        if (n > 0) {
                             console.log(pane);
                             console.log(n);
-                            $("a[href='"+pane+"']").addClass( "text-danger" );
-                        }else{
-                            $("a[href='"+pane+"']").addClass( "text-success" );
+                            $("a[href='" + pane + "']").addClass("text-danger");
+                        } else {
+                            $("a[href='" + pane + "']").addClass("text-success");
                         }
                     });
 
-                    
+
                     form.classList.add('was-validated')
                 });
             }, false)
@@ -183,19 +251,27 @@ $('.prev').click(function() {
 
 $(':checkbox').change(function() {
     var option = $(this).attr('id');
-    if($(this).is(':checked')){
-        $("."+option).removeClass('d-none');
-    }else{
-        $("."+option).addClass('d-none');
+    if ($(this).is(':checked')) {
+        $("." + option).removeClass('d-none');
+    } else {
+        $("." + option).addClass('d-none');
     }
 });
 
 
 $("#list-transactions span.input-group-text :checkbox").each(function() {
     var option = $(this).attr('id');
-    if($(this).is(':checked')){
-        $("."+option).removeClass('d-none');
-    }else{
-        $("."+option).addClass('d-none');
+    if ($(this).is(':checked')) {
+        $("." + option).removeClass('d-none');
+    } else {
+        $("." + option).addClass('d-none');
     }
 });
+
+
+var deleteModal = document.getElementById('modal-small')
+deleteModal.addEventListener('show.bs.modal', function (event) {
+    var button = event.relatedTarget
+    var id = button.getAttribute('data-bs-id')
+    var modalTitle = deleteModal.querySelector('#delete').setAttribute("action", window.location.href+"/"+id)
+})

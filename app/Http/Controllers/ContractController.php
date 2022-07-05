@@ -26,7 +26,7 @@ class ContractController extends Controller
      */
     public function index()
     {
-        $contracts = $this->contract->paginate(10);
+        $contracts = $this->contract->with('customers')->paginate(10);
         return view('dashboard.contracts.index', compact('contracts'));
     }
 
@@ -83,7 +83,7 @@ class ContractController extends Controller
                 $contract->customers()->attach([$value], ['link' => $key]);
             }
         }
-        
+        return redirect()->route('contracts.index')->with('toast_success', 'Contrato criado com sucesso');
     }
 
     /**
@@ -94,6 +94,7 @@ class ContractController extends Controller
      */
     public function preview(Request $request)
     {
+        
         $start = $this->carbon->parse($request->start_period);
         $date  = $this->carbon->createFromDate($start->year, $start->month, $request->payment);
 
@@ -103,14 +104,22 @@ class ContractController extends Controller
             $dateList[] = [
                 'id'    => $i,
                 'date'  => $i == 1 ? $date->format('Y-m-d') : $date->addMonth()->format('Y-m-d'),
-                'receipt' => $receipt = $request->rental_price + $request->condominium_price,
-                'transfer' => $receipt - (($request->administration_fee / 100) * $receipt),
+                'receipt' => $receipt =  $request->rental_price +  $request->condominium_price,
+                'transfer' => $receipt - (($request->administration_fee) / 100) * $receipt,
             ];
         }
         return response()->json([
             'dates' => $dateList
         ]);
         //return $request->all();
+    }
+
+
+    public function formatPrice($input)
+    {
+        $input = str_replace(".", "", $input);
+        $input = str_replace(",", ".", $input);
+        return $input;
     }
 
     /**

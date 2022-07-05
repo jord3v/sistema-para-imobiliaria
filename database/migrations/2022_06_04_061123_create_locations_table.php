@@ -22,6 +22,8 @@ return new class extends Migration
             $table->string('neighborhood');
             $table->string('city');
             $table->string('state');
+            $table->string('neighborhood_slug');
+            $table->string('city_slug');
             $table->morphs('locatable');
             $table->timestamps();
         });

@@ -1,14 +1,14 @@
 <x-app-layout>
     <x-slot name="header">
        <h2 class="page-title">
-          {{ __('Contracts') }}
+          {{ __('Contratos') }}
        </h2>
     </x-slot>
     <div class="row row-cards">
        <div class="col-12">
         <div class="card">
             <div class="card-header">
-              <h3 class="card-title">Contracts</h3>
+              <h3 class="card-title">Contratos</h3>
             </div>
             <div class="card-body">
               <div class="d-flex">
@@ -32,37 +32,40 @@
                 <thead>
                   <tr>
                     <th class="w-1"><input class="form-check-input m-0 align-middle" type="checkbox" aria-label="Select all invoices"></th>
-                    <th class="w-1">
-                        No.
-                    </th>
-                    <th>Code</th>
+                    <th>Título</th>
+                    <th>Envolvidos</th>
                     <th>User</th>
-                    <th></th>
+                    <th class="w-1"></th>
                   </tr>
                 </thead>
                 <tbody>
                     @forelse ($contracts as $contract)
                     <tr>
                         <td><input class="form-check-input m-0 align-middle" type="checkbox" aria-label="Select invoice"></td>
-                        <td><span class="text-muted">{{$contract->id}}</span></td>
-                        <td><a href="invoice.html" class="text-reset" tabindex="-1">{{$contract->code}}</a></td>
+                        <td>{{$contract->title}} <br> {{$contract->period}} meses</td>
+                        <td>
+                          @foreach ($contract->customers as $customer)
+                              {{$customer->name}} <br>
+                          @endforeach
+                        </td>
                         <td>
                           <span class="flag flag-country-us"></span>
                           {{$contract->user->name}}
                         </td>
                         <td class="text-end">
-                          <span class="dropdown">
-                            <button class="btn dropdown-toggle align-text-top" data-bs-boundary="viewport" data-bs-toggle="dropdown">Actions</button>
-                            <div class="dropdown-menu dropdown-menu-end">
-                              <a class="dropdown-item" href="#">
-                                Action
-                              </a>
-                              <a class="dropdown-item" href="#">
-                                Another action
-                              </a>
-                            </div>
-                          </span>
-                        </td>
+                          <div class="btn-list flex-nowrap">
+                             <div class="dropdown">
+                               <button class="btn dropdown-toggle align-text-top" data-bs-toggle="dropdown">
+                                 Ações
+                               </button>
+                               <div class="dropdown-menu dropdown-menu-end">
+                                 <a class="dropdown-item" href="#">
+                                   Detalhes
+                                 </a>
+                               </div>
+                             </div>
+                           </div>
+                         </td>
                       </tr>
                     @empty
                       <tr>

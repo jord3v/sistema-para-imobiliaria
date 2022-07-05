@@ -22,6 +22,7 @@ return new class extends Migration
             $table->enum('status', ['concluded', 'pending'])->default('pending');
             $table->enum('flow', ['inflow', 'outflow']);
             $table->foreignId('contract_id')->constrained();
+            //$table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->timestamps();
         });
     }

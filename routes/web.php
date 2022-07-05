@@ -1,9 +1,12 @@
 <?php
 
 use App\Http\Controllers\{
+    ActivityController,
     PropertyController,
     CustomerController,
-    ContractController
+    ContractController,
+    MediaController,
+    UserController
 };
 
 use Illuminate\Support\Facades\Route;
@@ -31,9 +34,16 @@ Route::group(['prefix' => 'dashboard', 'middleware' => 'auth'], function(){
         'properties' => PropertyController::class,
         'customers' => CustomerController::class,
         'contracts' => ContractController::class,
+        'users'     => UserController::class,
+        'activities'=> ActivityController::class,
+        'users'     => UserController::class,
+        'roles'     => RoleController::class,
+        'medias'    => MediaController::class
     ]);
     Route::post('contracts/preview', [ContractController::class, 'preview'])->name('contracts.preview');
     Route::post('properties/categories', [PropertyController::class, 'categories'])->name('properties.categories');
+    Route::post('properties/search', [PropertyController::class, 'search'])->name('properties.search');
+    Route::post('medias/sort', [MediaController::class, 'sort'])->name('medias.sort');
 });
 
 require __DIR__.'/auth.php';

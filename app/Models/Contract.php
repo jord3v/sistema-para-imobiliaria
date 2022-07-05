@@ -4,10 +4,14 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Spatie\Activitylog\{
+    Traits\LogsActivity,
+    LogOptions
+};
 
 class Contract extends Model
 {
-    use HasFactory;
+    use HasFactory, LogsActivity;
 
     /**
      * The attributes that are mass assignable.
@@ -43,5 +47,14 @@ class Contract extends Model
     public function customers()
     {
         return $this->morphToMany(Customer::class, 'aggregate')->withPivot('link');
+    }
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        
+        return LogOptions::defaults()
+        ->logFillable()
+        ->useLogName('contracts')
+        ->setDescriptionForEvent(fn(string $eventName) => "<strong> :causer.name </strong> ".events($eventName)." contrato: <strong>  :subject.title </strong> ");
     }
 }
